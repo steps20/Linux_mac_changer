@@ -1,11 +1,18 @@
 #!/usr/bin/env python
+
 import subprocess
 import random
-import optparse
+import argparse
 import re
 
-alphaNum = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S',
-			'T','U','Z','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9']
+def generate_mac_address():
+    mac = [0] * 6  
+    
+    for i in range(6):
+		#make random num hex 
+        mac[i] = format(random.randint(0, 255), '02x')
+    
+    return ':'.join(mac)
 
 def read_mac(interface):
 	result = subprocess.check_output(["ifconfig", interface])
@@ -16,28 +23,40 @@ def read_mac(interface):
 		return old_mac[0]
 
 def change_mac(interface, mac):
-	print("Changing MAC address of " + interface + " to " + mac)
+	print("Changing MAC address of " + str(interface) + " to " + str(mac))
 	subprocess.call("sudo ifconfig " + interface + " down", shell=True)
 	subprocess.call("sudo ifconfig "+ interface + " hw ether " + mac, shell=True)
 	subprocess.call("sudo ifconfig " + interface + " up",shell=True)
-	
+
 def get_arguments():
-	parser = optparse.OptionParser()
-	parser.add_option("-m","--mac", dest="mac", help="Desired MAC Address")
-	parser.add_option("-i", "--interface", dest="interface", help="Enter your network Interface")
-	(options, arguments) = parser.parse_args()
-	if not options.interface:
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-m", "--mac", dest="mac", help="Desired MAC Address")
+	parser.add_argument("-r", "--random", dest="random", nargs='?', const=True, help="Generate a random MAC address.")
+	parser.add_argument("-i", "--interface", dest="interface", help="Enter your network Interface")
+	args = parser.parse_args()
+	if args.mac and args.random:
+		print("Error, please choose to either use a custom MAC OR a random mac.")
+		quit()
+	if not args.interface:
 		print("Error, please enter an interface using '-i'")
-	elif not options.mac:
+		quit()
+	elif not args.mac and not args.random:
 		print("Error, please enter a MAC using '-m'")
-		
-	return options
+		quit()
+	return args
 	
 			
-options = get_arguments()
-old_mac = read_mac(options.interface)
+args = get_arguments()
+old_mac = read_mac(args.interface)
 print("Your current MAC Address: " + str(old_mac))
-change_mac(options.interface, options.mac)
-current_mac = read_mac(options.interface)
-if current_mac == options.mac:
-	print("Mac Address successfully cahnged to " + current_mac)
+
+if args.mac:
+	change_mac(args.interface, args.mac)
+else:
+	change_mac(args.interface, generate_mac_address())
+
+current_mac = read_mac(args.interface)
+if current_mac == args.mac:
+	print("Mac Address successfully changed to " + str(current_mac))
+
+
