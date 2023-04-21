@@ -8,10 +8,10 @@ This script requires Python 3.X.X to be installed in the system. It is worth not
 **Additionally, it is important to note that this script uses Linux commands and therefore cannot be run on a Windows machine.
 
 <h1>Usage: </h1>
-Usage:
+Usage:<br>
   python mac_changer.py [OPTIONS]
 
-Options:
-  -r, --random         Generates a random MAC address to be used
-  -m, --mac            Gives the option for a user entered MAC  
-  -i, --interface      Used to enter the interface you want to change your mac on. 
+Options:<br>
+  -r, --random         Generates a random MAC address to be used<br>
+  -m, --mac            Gives the option for a user entered MAC  <br>
+ -i, --interface      Used to enter the interface you want to change your mac on. 
